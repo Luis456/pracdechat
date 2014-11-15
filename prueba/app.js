@@ -79,6 +79,7 @@ sockets.on("connection",function(socket){
     socket.on("setnickname",function(clientedata){
         if(verificarCuenta(clientedata.nick)){
             nicknames.push(clientedata);
+            socket.nickname=clientedata.nick;
             socket.emit("setnickname",{"server":true});
             return;
         }
