@@ -76,6 +76,9 @@ sockets.on("connection",function(socket){
         sockets.sockets.emit("mensajes",false);
         
     });
+    socket.on("get_lista",function(clientedata){
+        sockets.sockets.emit("get_lista",{"lista":nicknames});
+    });
     socket.on("setnickname",function(clientedata){
         if(verificarCuenta(clientedata.nick)){
             nicknames.push(clientedata);
