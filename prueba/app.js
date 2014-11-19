@@ -65,12 +65,25 @@ var server=app.listen(PORT,function(){
 //instanciamos los sockets junto con el servidor
 var nicknames=[];
 var sockets=io(server);
+
 sockets.on("connection",function(socket){
         //el evento setnichname se ejecuta cuando el cliente a iniciado
     socket.on("mensajes",function(clientedata){
         if(clientedata.nick===socket.nickname)
         {
-            sockets.sockets.emit("mensajes",clientedata);
+            var comando=clientedata.msn.split(" ");
+            if (comando[0]=="join")
+            {
+                var sala=comando[1];
+
+                sockets.to(socket.sala).emit("mensajes",{"nick":"SERVIDOR","msn":"El usuario " +socket.nickname+ " ahora esta en la sala "+sala});
+                socket.leave(socket.sala);
+                socket.sala=sala;
+                socket.join(sala);
+
+                return;
+            }
+            sockets.to(socket.sala).emit("mensajes",clientedata);
             return;
         }
         sockets.sockets.emit("mensajes",false);
@@ -82,6 +95,8 @@ sockets.on("connection",function(socket){
     socket.on("setnickname",function(clientedata){
         if(verificarCuenta(clientedata.nick)){
             nicknames.push(clientedata);
+            socket.sala="general"
+            socket.join("general");
             socket.nickname=clientedata.nick;
             socket.emit("setnickname",{"server":true});
             return;
